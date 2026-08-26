@@ -19,6 +19,122 @@ const showAllGamesBtn = document.getElementById('showAllGames');
 const prevGamesBtn = document.getElementById('gamesPrev');
 const nextGamesBtn = document.getElementById('gamesNext');
 
+
+const CLUB_DOMAINS = {
+  'palmeiras': 'palmeiras.com.br',
+  'flamengo': 'flamengo.com.br',
+  'real madrid': 'realmadrid.com',
+  'bayern': 'fcbayern.com',
+  'bayern munich': 'fcbayern.com',
+  'bayern munchen': 'fcbayern.com',
+  'sao paulo': 'saopaulofc.net',
+  'corinthians': 'corinthians.com.br',
+  'atletico go': 'atleticogoianiense.com.br',
+  'atletico goianiense': 'atleticogoianiense.com.br',
+  'botafogo sp': 'botafogofutebolsa.com.br',
+  'botafogo-sp': 'botafogofutebolsa.com.br',
+  'juventude': 'ecjuventude.com.br',
+  'crb': 'crboficial.com.br',
+  'cruzeiro': 'cruzeiro.com.br',
+  'atletico mg': 'atletico.com.br',
+  'atletico mineiro': 'atletico.com.br',
+  'fluminense': 'fluminense.com.br',
+  'vasco': 'vasco.com.br',
+  'vasco da gama': 'vasco.com.br',
+  'botafogo': 'botafogo.com.br',
+  'gremio': 'gremio.net',
+  'internacional': 'internacional.com.br',
+  'santos': 'santosfc.com.br',
+  'bahia': 'ecbahia.com',
+  'vitoria': 'ecvitoria.com.br',
+  'fortaleza': 'fortaleza1918.com.br',
+  'ceara': 'cearasc.com',
+  'sport': 'sportrecife.com.br',
+  'sport recife': 'sportrecife.com.br',
+  'nautico': 'nautico-pe.com.br',
+  'santa cruz': 'santacruzpe.com.br',
+  'cuiaba': 'cuiabaesporteclube.com.br',
+  'goias': 'goiasec.com.br',
+  'athletico pr': 'athletico.com.br',
+  'athletico paranaense': 'athletico.com.br',
+  'coritiba': 'coritiba.com.br',
+  'bragantino': 'redbullbragantino.com.br',
+  'rb bragantino': 'redbullbragantino.com.br',
+  'america mg': 'americamineiro.com.br',
+  'america mineiro': 'americamineiro.com.br',
+  'mirassol': 'mirassolfc.com.br',
+  'guarani': 'guaranifc.com.br',
+  'ponte preta': 'pontepreta.com.br',
+  'chapecoense': 'chapecoense.com',
+  'avai': 'avai.com.br',
+  'operario': 'operarioferroviario.com.br',
+  'vila nova': 'vilanovafc.com.br',
+  'remo': 'clubedoremo.com.br',
+  'paysandu': 'paysandu.com.br',
+  'ferroviaria': 'ferroviariasaf.com',
+  'csa': 'centrosportivoalagoano.com',
+  'londrina': 'londrinaesporteclube.com.br',
+  'manchester city': 'mancity.com',
+  'manchester united': 'manutd.com',
+  'liverpool': 'liverpoolfc.com',
+  'arsenal': 'arsenal.com',
+  'chelsea': 'chelseafc.com',
+  'tottenham': 'tottenhamhotspur.com',
+  'barcelona': 'fcbarcelona.com',
+  'fc barcelona': 'fcbarcelona.com',
+  'atletico de madrid': 'atleticodemadrid.com',
+  'atletico madrid': 'atleticodemadrid.com',
+  'sevilla': 'sevillafc.es',
+  'valencia': 'valenciacf.com',
+  'psg': 'psg.fr',
+  'paris saint-germain': 'psg.fr',
+  'marseille': 'om.fr',
+  'juventus': 'juventus.com',
+  'milan': 'acmilan.com',
+  'inter': 'inter.it',
+  'inter milan': 'inter.it',
+  'napoli': 'sscnapoli.it',
+  'roma': 'asroma.com',
+  'borussia dortmund': 'bvb.de',
+  'bayer leverkusen': 'bayer04.de',
+  'benfica': 'slbenfica.pt',
+  'porto': 'fcporto.pt',
+  'sporting': 'sporting.pt'
+};
+
+function normalizeTeamKey(name = '') {
+  return normalizeText(name)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\bec\b|\bfc\b|\bsc\b|\bafc\b|\bcr\b|\bcc\b|\bcd\b|\bcf\b/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function getCrestUrl(teamName = '') {
+  const key = normalizeTeamKey(teamName);
+  const direct = CLUB_DOMAINS[key];
+  if (direct) return `https://www.google.com/s2/favicons?sz=128&domain=${encodeURIComponent(direct)}`;
+  for (const [candidate, domain] of Object.entries(CLUB_DOMAINS)) {
+    if (key === candidate || key.includes(candidate) || candidate.includes(key)) {
+      return `https://www.google.com/s2/favicons?sz=128&domain=${encodeURIComponent(domain)}`;
+    }
+  }
+  return '';
+}
+
+function renderCrestMarkup(teamName, extraClass = '') {
+  const crestUrl = getCrestUrl(teamName);
+  const initials = slugInitials(teamName);
+  const classes = ['crest', 'auto-crest', extraClass].filter(Boolean).join(' ');
+  if (!crestUrl) {
+    return `<div class="${classes}">${escapeHtml(initials)}</div>`;
+  }
+  return `<div class="${classes} crest-image"><img src="${escapeHtml(crestUrl)}" alt="Escudo de ${escapeHtml(teamName)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add('crest-fallback'); this.remove(); this.parentElement.textContent='${escapeHtml(initials)}';"></div>`;
+}
+
 const competitionPatterns = [
   'Campeonato Brasileiro Série A', 'Campeonato Brasileiro Serie A',
   'Campeonato Brasileiro Série B', 'Campeonato Brasileiro Serie B',
@@ -159,7 +275,7 @@ function createGameCard(game) {
 
   const home = document.createElement('div');
   home.className = 'team';
-  home.innerHTML = `<div class="crest auto-crest">${slugInitials(game.home)}</div><small>${escapeHtml(game.home)}</small>`;
+  home.innerHTML = `${renderCrestMarkup(game.home)}<small>${escapeHtml(game.home)}</small>`;
 
   const center = document.createElement('div');
   center.className = 'score schedule-score';
@@ -167,7 +283,7 @@ function createGameCard(game) {
 
   const away = document.createElement('div');
   away.className = 'team';
-  away.innerHTML = `<div class="crest auto-crest away-crest">${slugInitials(game.away)}</div><small>${escapeHtml(game.away)}</small>`;
+  away.innerHTML = `${renderCrestMarkup(game.away, 'away-crest')}<small>${escapeHtml(game.away)}</small>`;
 
   const league = document.createElement('div');
   league.className = 'league';

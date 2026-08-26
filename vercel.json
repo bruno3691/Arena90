@@ -1,0 +1,15 @@
+{
+  "functions": {
+    "api/jogos.js": {
+      "maxDuration": 20
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/jogos",
+      "headers": [
+        { "key": "Cache-Control", "value": "s-maxage=120, stale-while-revalidate=300" }
+      ]
+    }
+  ]
+}
